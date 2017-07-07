@@ -19,7 +19,9 @@ exports.defineAutoTests = function() {
 };
 
 exports.defineManualTests = function(contentEl, createActionButton) {
-  createActionButton('Start', function() {
+  createActionButton('Start Webserver', function() {
+    console.log(webserver);
+
     webserver.start(
       function() {
         console.log('Success!');
