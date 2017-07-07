@@ -1,0 +1,39 @@
+{
+  "name": "cordova-plugin-webserver",
+  "version": "1.0.0",
+  "description": "Cordova Webserver",
+  "homepage": "",
+  "author": {
+    "name": "Michael Bykovski"
+  },
+  "license": "Apache-2.0",
+  "cordova": {
+    "id": "cordova-plugin-webserver",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "cordova",
+    "ios",
+    "android",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova:plugin",
+    "webserver",
+    "http",
+    "request",
+    "response"
+  ],
+  "devDependencies": {
+    "cordova": "^6.1.1"
+  },
+  "scripts": {
+    "deploy": "cd tests/app && cordova run --device"
+  }
+}
