@@ -3,7 +3,7 @@
     id="cordova-plugin-webserver"
     version="1.0.0">
   <engines>
-    <engine name="cordova" version=">=3.0.0" />
+    <engine name="cordova" version=">=7.0.0" />
   </engines>
 
   <name>Webserver for Cordova Apps</name>
@@ -35,7 +35,7 @@
   <header-file src="src/ios/GCDWebServer/Core/GCDWebServer.h" />
   <source-file src="src/ios/GCDWebServer/Core/GCDWebServer.m" />
 
-  <header-file src="src/ios/Webserver-Bridging-Header.h"/>
+  <header-file src="src/ios/GCDWebServer-Bridging-Header.h"/>
 
   <header-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.h" />
   <source-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.m" />
