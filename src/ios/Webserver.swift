@@ -9,6 +9,8 @@
     override func pluginInitialize() {
         self.webServer = GCDWebServer()
         self.onRequestCommand = nil
+        self.responses = [:]
+        self.initHTTPRequestHandlers()
     }
 
     func requestToRequestDict(requestUUID: String, request: GCDWebServerDataRequest) -> Dictionary<String, Any> {
@@ -22,44 +24,58 @@
         ]
     }
 
-    func processRequest(request: GCDWebServerRequest) -> GCDWebServerResponse {
+    func processRequest(request: GCDWebServerRequest, completionBlock: GCDWebServerCompletionBlock) {
         var timeout = 0
         // Fetch data as GCDWebserverDataRequest
-        let dataRequest = request as! GCDWebServerDataRequest
         let requestUUID = UUID().uuidString
         // Transform it into an dictionary for the javascript plugin
-        let requestDict = self.requestToRequestDict(requestUUID: requestUUID, request: dataRequest)
+        let requestDict = self.requestToRequestDict(requestUUID: requestUUID, request: request as! GCDWebServerDataRequest)
 
         // Do a call to the onRequestCommand to inform the JS plugin
         if (self.onRequestCommand != nil) {
+            print("Sending to JS Context")
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: requestDict)
+            pluginResult?.setKeepCallbackAs(true)
             self.commandDelegate.send(
-                CDVPluginResult(status: CDVCommandStatus_OK, messageAs: requestDict),
+                pluginResult,
                 callbackId: self.onRequestCommand?.callbackId
             )
         }
 
         // Here we have to wait until the javascript block fetches the message and do a response
-        while self.responses[requestUUID] == nil && timeout < self.TIMEOUT {
+        while self.responses[requestUUID] == nil {
             timeout += 2000
             usleep(2000)
         }
 
-        let response = GCDWebServerResponse()
-        return response
+        let responseDict = self.responses[requestUUID] as! Dictionary<AnyHashable, Any>
+        let response = GCDWebServerDataResponse(text: responseDict["body"] as! String)
+        response?.statusCode = responseDict["status"] as! Int
+
+        for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
+            response?.setValue(value, forAdditionalHeader: key)
+        }
+        completionBlock(response!)
     }
 
     func onRequest(_ command: CDVInvokedUrlCommand) {
         self.onRequestCommand = command
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_NO_RESULT)
+        pluginResult?.setKeepCallbackAs(true)
+        self.commandDelegate.send(
+            pluginResult,
+            callbackId: self.onRequestCommand?.callbackId
+        )
     }
 
     func initHTTPRequestHandlers() {
-        for methodType in ["GET", "POST", "PUT", "PATCH", "DELETE"] {
-            self.webServer.addDefaultHandler(
-                forMethod: methodType,
-                request: GCDWebServerDataRequest.self,
-                processBlock: self.processRequest
-            )
-        }
+        self.webServer.addHandler(
+            match: {
+                (requestMethod, requestURL, requestHeaders, urlPath, urlQuery) -> GCDWebServerRequest? in
+                    return GCDWebServerDataRequest(method: requestMethod, url: requestURL, headers: requestHeaders, path: urlPath, query: urlQuery)
+            },
+            asyncProcessBlock: self.processRequest
+        )
     }
 
     func sendResponse(_ command: CDVInvokedUrlCommand) {

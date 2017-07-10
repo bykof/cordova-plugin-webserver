@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-webserver-tests.tests", function(require, exports, module) {
 exports.defineAutoTests = function() {
 
   describe('Webserver (window.webserver)', function () {
@@ -35,12 +36,21 @@ exports.defineManualTests = function(contentEl, createActionButton) {
   createActionButton('Start bljad Webserver', function() {
     console.log("Starting webserver...");
 
-    console.log(webserver);
-
     webserver.onRequest(
       function(request) {
-        console.log(request);
-        webserver.sendResponse(request.requestId, {});
+        console.log('Received request');
+        console.log('Sending response');
+        webserver.sendResponse(
+            request["requestId"],
+            {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'TestHeader': 'Just a testheader'
+                },
+                body: '{"hello":"from js!"}'
+            }
+        );
       }
     );
 
@@ -81,3 +91,5 @@ exports.defineManualTests = function(contentEl, createActionButton) {
     );
   });
 };
+
+});
