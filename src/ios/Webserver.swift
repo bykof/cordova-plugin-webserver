@@ -33,7 +33,6 @@
 
         // Do a call to the onRequestCommand to inform the JS plugin
         if (self.onRequestCommand != nil) {
-            print("Sending to JS Context")
             let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: requestDict)
             pluginResult?.setKeepCallbackAs(true)
             self.commandDelegate.send(
@@ -44,10 +43,11 @@
 
         // Here we have to wait until the javascript block fetches the message and do a response
         while self.responses[requestUUID] == nil {
-            timeout += 2000
-            usleep(2000)
+            timeout += 1000
+            usleep(1000)
         }
 
+        // We got the dict so put information in the response
         let responseDict = self.responses[requestUUID] as! Dictionary<AnyHashable, Any>
         let response = GCDWebServerDataResponse(text: responseDict["body"] as! String)
         response?.statusCode = responseDict["status"] as! Int
@@ -55,6 +55,8 @@
         for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
             response?.setValue(value, forAdditionalHeader: key)
         }
+
+        // Complete the async response
         completionBlock(response!)
     }
 
