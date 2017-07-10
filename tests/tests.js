@@ -16,11 +16,33 @@ exports.defineAutoTests = function() {
       });
     })
   });
+
+  describe('Do a request', function() {
+
+    it('should do a request', function() {
+        webserver.onRequest(
+          function(request) {
+            // Check for a request is made
+          }
+        );
+        websever.start();
+        webserver.stop();
+    });
+  });
 };
 
 exports.defineManualTests = function(contentEl, createActionButton) {
   createActionButton('Start bljad Webserver', function() {
     console.log("Starting webserver...");
+
+    console.log(webserver);
+
+    webserver.onRequest(
+      function(request) {
+        console.log(request);
+        webserver.sendResponse(request.requestId, {});
+      }
+    );
 
     webserver.start(
       function() {

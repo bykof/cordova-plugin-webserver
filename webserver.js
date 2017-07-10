@@ -10,23 +10,28 @@ exports.start = function(success_callback, error_callback, port) {
     );
 };
 
-exports.onRequest = function(success_callback, error_callback) {
+exports.onRequest = function(success_callback) {
     cordova.exec(
       success_callback,
-      error_callback,
+      function(error) {console.error(error);}
       WEBSERVER_CLASS,
       "onRequest",
       []
     );
 };
 
-exports.send = function(params, success_callback, error_callback) {
+exports.sendResponse = function(
+  responseId,
+  params,
+  success_callback,
+  error_callback
+) {
     cordova.exec(
       success_callback,
       error_callback,
       WEBSERVER_CLASS,
       "send",
-      [params]
+      [requestId, params]
     );
 };
 
