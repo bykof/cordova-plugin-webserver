@@ -8,8 +8,8 @@
 
   <name>Webserver for Cordova Apps</name>
   <keywords>webserver,cordova,http, request, response,server</keywords>
-  <repo></repo>
-  <issue></issue>
+  <repo>https://github.com/bykof/cordova-plugin-webserver</repo>
+  <issue>https://github.com/bykof/cordova-plugin-webserver/issues</issue>
 
   <js-module src="webserver.js" name="webserver">
     <clobbers target="webserver" />
