@@ -3,6 +3,7 @@ package org.apache.cordova.plugin;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.util.Log;
 
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
@@ -21,7 +22,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
     Webserver webserver;
 
     public NanoHTTPDWebserver(int port, Webserver webserver) {
-        super("0.0.0.0", port);
+        super(port);
         this.webserver = webserver;
     }
 
@@ -53,6 +54,8 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
 
     @Override
     public Response serve(IHTTPSession session) {
+        Log.d(this.getClass().getName(), "New request is incoming!");
+
         String requestUUID = UUID.randomUUID().toString();
 
         PluginResult pluginResult = null;
@@ -74,6 +77,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
         }
 
         JSONObject responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
+        Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
         Response response = null;
         try {
             response = newFixedLengthResponse(

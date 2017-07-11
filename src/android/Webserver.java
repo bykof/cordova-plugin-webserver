@@ -1,9 +1,10 @@
 package org.apache.cordova.plugin;
 
+import android.util.Log;
+
 import org.apache.cordova.*;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,8 +14,7 @@ public class Webserver extends CordovaPlugin {
 
     public HashMap<String, Object> responses;
     public CallbackContext onRequestCallbackContext;
-
-    private NanoHTTPDWebserver nanoHTTPDWebserver;
+    public NanoHTTPDWebserver nanoHTTPDWebserver;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -40,8 +40,8 @@ public class Webserver extends CordovaPlugin {
             this.onRequest(args, callbackContext);
             return true;
         }
-        else if ("onResponse".equals(action)) {
-            this.onResponse(args, callbackContext);
+        else if ("sendResponse".equals(action)) {
+            this.sendResponse(args, callbackContext);
             return true;
         }
         return false;  // Returning false results in a "MethodNotFound" error.
@@ -57,9 +57,18 @@ public class Webserver extends CordovaPlugin {
 
         if (args.length() == 1) {
             port = args.getInt(0);
+
         }
+
         this.nanoHTTPDWebserver = new NanoHTTPDWebserver(port, this);
         this.nanoHTTPDWebserver.start();
+
+        Log.d(
+             this.getClass().getName(),
+            "Server is running on: " +
+            this.nanoHTTPDWebserver.getHostname() + ":" +
+            this.nanoHTTPDWebserver.getListeningPort()
+        );
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
     }
 
@@ -81,7 +90,8 @@ public class Webserver extends CordovaPlugin {
      * @param callbackContext
      * @throws JSONException
      */
-    private void onResponse(JSONArray args, CallbackContext callbackContext) throws JSONException {
+    private void sendResponse(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        Log.d(this.getClass().getName(), "Got sendResponse: " + args.toString());
         this.responses.put(args.getString(0), args.get(1));
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
     }

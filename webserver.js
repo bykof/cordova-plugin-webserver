@@ -1,12 +1,16 @@
 var WEBSERVER_CLASS = "Webserver";
 
 exports.start = function(success_callback, error_callback, port) {
+  var params = [];
+  if (port) {
+    params.push(port);
+  }
   cordova.exec(
     success_callback,
     error_callback,
     WEBSERVER_CLASS,
     "start",
-    [port]
+    params
   );
 };
 
