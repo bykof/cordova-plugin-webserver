@@ -21,7 +21,7 @@
     <source-file src="src/android/NanoHTTPDWebserver.java" target-dir="src/org/apache/cordova/plugin"/>
     <config-file target="config.xml" parent="/*">
       <feature name="Webserver">
-        <param name="android-package" value="Webserver"/>
+        <param name="android-package" value="org.apache.cordova.plugin.Webserver"/>
       </feature>
     </config-file>
   </platform>

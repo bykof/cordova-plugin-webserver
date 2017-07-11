@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-webserver-tests.tests", function(require, exports, module) {
 exports.defineAutoTests = function() {
 
   describe('Webserver (window.webserver)', function () {
@@ -91,5 +90,3 @@ exports.defineManualTests = function(contentEl, createActionButton) {
     );
   });
 };
-
-});
