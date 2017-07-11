@@ -77,7 +77,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
 
         while (!this.webserver.responses.containsKey(requestUUID)) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
