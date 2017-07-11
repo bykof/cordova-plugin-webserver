@@ -16,7 +16,7 @@
     func requestToRequestDict(requestUUID: String, request: GCDWebServerDataRequest) -> Dictionary<String, Any> {
         return [
             "requestId": requestUUID,
-            "body": request.jsonObject ?? "",
+            "body": request.text ?? "",
             "headers": request.headers,
             "method": request.method,
             "path": request.url.path,

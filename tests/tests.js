@@ -38,16 +38,21 @@ exports.defineManualTests = function(contentEl, createActionButton) {
     webserver.onRequest(
       function(request) {
         console.log('Received request');
-        console.log('Sending response');
+        console.log('requestId: ', request.requestId);
+        console.log('body: ', request.body);
+        console.log('headers: ', request.headers);
+        console.log('path: ', request.path);
+        console.log('query: ', request.query);
+
         webserver.sendResponse(
-            request["requestId"],
+            request.requestId,
             {
                 status: 200,
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'text/html',
                     'TestHeader': 'Just a testheader'
                 },
-                body: '{"hello":"from js!"}'
+                body: '<html><form method="POST"><input type="text" name="bla" /><input type="submit" /></form></html>'
             }
         );
       }
