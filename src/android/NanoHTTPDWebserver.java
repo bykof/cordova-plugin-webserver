@@ -13,8 +13,10 @@ import fi.iki.elonen.NanoHTTPD;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.UUID;
 
 public class NanoHTTPDWebserver extends NanoHTTPD{
@@ -24,6 +26,11 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
     public NanoHTTPDWebserver(int port, Webserver webserver) {
         super(port);
         this.webserver = webserver;
+    }
+
+    private String inputStreamToString(InputStream inputStream) {
+        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
 
     /**
@@ -44,7 +51,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
     private JSONObject createJSONRequest(String requestId, IHTTPSession session) throws JSONException {
         JSONObject jsonRequest = new JSONObject();
         jsonRequest.put("requestId", requestId);
-        jsonRequest.put("body", session.getParameters());
+        jsonRequest.put("body", this.inputStreamToString(session.getInputStream()));
         jsonRequest.put("headers", session.getHeaders());
         jsonRequest.put("method", session.getMethod());
         jsonRequest.put("path", session.getUri());
