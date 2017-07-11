@@ -1,8 +1,8 @@
 {
   "name": "cordova-plugin-webserver",
   "version": "1.0.0",
-  "description": "Cordova Webserver",
-  "homepage": "",
+  "description": "Cordova Plugin Webserver",
+  "homepage": "https://github.com/bykof/cordova-plugin-webserver/",
   "author": {
     "name": "Michael Bykovski"
   },
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/bykof/cordova-plugin-webserver"
   },
   "keywords": [
     "cordova",
@@ -34,6 +34,5 @@
     "cordova": "^6.1.1"
   },
   "scripts": {
-    "deploy": "cd tests/app && cordova run --device"
   }
 }
