@@ -16,7 +16,9 @@
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/Webserver.java" />
+    <framework src="org.nanohttpd:nanohttpd:+" />
+    <source-file src="src/android/Webserver.java" target-dir="src/org/apache/cordova/plugin"/>
+    <source-file src="src/android/NanoHTTPDWebserver.java" target-dir="src/org/apache/cordova/plugin"/>
     <config-file target="config.xml" parent="/*">
       <feature name="Webserver">
         <param name="android-package" value="Webserver"/>
@@ -25,54 +27,54 @@
   </platform>
 
   <platform name="ios">
-  <source-file src="src/ios/Webserver.swift" />
-  <dependency id="cordova-plugin-add-swift-support" version="1.6.1"/>
+    <source-file src="src/ios/Webserver.swift" />
+    <dependency id="cordova-plugin-add-swift-support" version="1.6.1"/>
 
-  <framework src="libz.tbd" />
-  <framework src="libxml2.tbd" />
+    <framework src="libz.tbd" />
+    <framework src="libxml2.tbd" />
 
-  <!-- GCDWebserver -->
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServer.h" />
-  <source-file src="src/ios/GCDWebServer/Core/GCDWebServer.m" />
+    <!-- GCDWebserver -->
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServer.h" />
+    <source-file src="src/ios/GCDWebServer/Core/GCDWebServer.m" />
 
-  <header-file src="src/ios/GCDWebServer-Bridging-Header.h"/>
+    <header-file src="src/ios/GCDWebServer-Bridging-Header.h"/>
 
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.h" />
-  <source-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.m" />
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.h" />
-  <source-file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.m" />
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerHTTPStatusCodes.h" />
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerPrivate.h" />
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.h" />
-  <source-file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.m" />
-  <header-file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.h" />
-  <source-file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.m" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.h" />
+    <source-file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.m" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.h" />
+    <source-file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.m" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerHTTPStatusCodes.h" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerPrivate.h" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.h" />
+    <source-file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.m" />
+    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.h" />
+    <source-file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.m" />
 
-  <!-- GCDWebserver Requests -->
-  <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.h" />
-  <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.m" />
-  <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.h" />
-  <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.m" />
-  <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.h" />
-  <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.m" />
-  <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.h" />
-  <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.m" />
+    <!-- GCDWebserver Requests -->
+    <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.h" />
+    <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.m" />
+    <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.h" />
+    <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.m" />
+    <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.h" />
+    <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.m" />
+    <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.h" />
+    <source-file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.m" />
 
-  <!-- GCDWebserver Response -->
-  <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.h" />
-  <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.m" />
-  <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.h" />
-  <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.m" />
-  <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.h" />
-  <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.m" />
-  <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.h" />
-  <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.m" />
+    <!-- GCDWebserver Response -->
+    <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.h" />
+    <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.m" />
+    <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.h" />
+    <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.m" />
+    <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.h" />
+    <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.m" />
+    <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.h" />
+    <source-file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.m" />
 
 
-  <config-file target="config.xml" parent="/*">
-    <feature name="Webserver">
-      <param name="ios-package" value="Webserver" />
-    </feature>
-  </config-file>
-</platform>
+    <config-file target="config.xml" parent="/*">
+      <feature name="Webserver">
+        <param name="ios-package" value="Webserver" />
+      </feature>
+    </config-file>
+  </platform>
 </plugin>
