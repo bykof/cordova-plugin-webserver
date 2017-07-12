@@ -43,6 +43,7 @@ exports.defineManualTests = function(contentEl, createActionButton) {
         console.log('headers: ', request.headers);
         console.log('path: ', request.path);
         console.log('query: ', request.query);
+        console.log('method: ', request.method);
 
         webserver.sendResponse(
             request.requestId,
