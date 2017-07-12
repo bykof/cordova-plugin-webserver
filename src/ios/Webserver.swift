@@ -13,14 +13,21 @@
         self.initHTTPRequestHandlers()
     }
 
-    func requestToRequestDict(requestUUID: String, request: GCDWebServerDataRequest) -> Dictionary<String, Any> {
+    func requestToRequestDict(requestUUID: String, request: GCDWebServerRequest) -> Dictionary<String, Any> {
+        let dataRequest = request as! GCDWebServerDataRequest
+        var body = ""
+
+        if dataRequest.hasBody() {
+            body = String(data: dataRequest.data, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue)) ?? ""
+        }
+
         return [
             "requestId": requestUUID,
-            "body": request.text ?? "",
-            "headers": request.headers,
-            "method": request.method,
-            "path": request.url.path,
-            "query": request.url.query ?? ""
+            "body": body,
+            "headers": dataRequest.headers,
+            "method": dataRequest.method,
+            "path": dataRequest.url.path,
+            "query": dataRequest.url.query ?? ""
         ]
     }
 
@@ -29,7 +36,7 @@
         // Fetch data as GCDWebserverDataRequest
         let requestUUID = UUID().uuidString
         // Transform it into an dictionary for the javascript plugin
-        let requestDict = self.requestToRequestDict(requestUUID: requestUUID, request: request as! GCDWebServerDataRequest)
+        let requestDict = self.requestToRequestDict(requestUUID: requestUUID, request: request)
 
         // Do a call to the onRequestCommand to inform the JS plugin
         if (self.onRequestCommand != nil) {
