@@ -5,7 +5,7 @@ This plugin helps you to start a full webserver in JavaScript on Android and iOS
 
 ## Current supported platforms
 
-- Android (i think all version?! Tell me if it's not true)
+- Android (i think all versions?! Tell me if it's not true)
 - iOS (8.0 or later (armv7, armv7s or arm64))
 
 ## Why?
