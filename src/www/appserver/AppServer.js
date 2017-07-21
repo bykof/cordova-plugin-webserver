@@ -33,7 +33,7 @@ export default class AppServer {
   }
   
   onRequest(request) {
-    let request =  new Request(
+    let requestObject =  new Request(
       request.requestId,
       request.method,
       request.path,
@@ -42,23 +42,23 @@ export default class AppServer {
       request.headers
     );
   
-    let response = new Response(
+    let responseObject = new Response(
       this.webserver,
-      request.requestId
+      requestObject.requestId
     );
     
     this.router.resolve(
-      request.url
+      requestObject.url
     ).then(
       // callback is a function
       (callback) => {
         // run the callback with all information we got for the request and the response
-        callback(request, response);
+        callback(requestObject, responseObject);
       }
     ).catch(
       (error) => {
         // if there is an error, just send a not found 404 bljad
-        response.notFound();
+        responseObject.notFound();
       }
     );
   }

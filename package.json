@@ -40,7 +40,7 @@
     "cordova": "^6.1.1"
   },
   "scripts": {
-    "build": "babel src/www/webserver.js --out-file webserver.js"
+    "build": "babel src/www --out-file webserver.js"
   },
   "dependencies": {
     "universal-router": "^3.2.0"
