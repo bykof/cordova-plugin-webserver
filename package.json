@@ -42,5 +42,7 @@
   "scripts": {
     "build": "babel src/www/webserver.js --out-file webserver.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "universal-router": "^3.2.0"
+  }
 }
