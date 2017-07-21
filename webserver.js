@@ -197,7 +197,6 @@ exports.default = Response;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.AppServer = undefined;
 exports.start = start;
 exports.onRequest = onRequest;
 exports.sendResponse = sendResponse;
@@ -207,16 +206,8 @@ var _exec = require('cordova/exec');
 
 var _exec2 = _interopRequireDefault(_exec);
 
-var _AppServer = require('./appserver/AppServer');
-
-var ImportedAppServer = _interopRequireWildcard(_AppServer);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Export the Appserver
-var AppServer = exports.AppServer = ImportedAppServer;
 var WEBSERVER_CLASS = 'Webserver';
 var START_FUNCTION = 'start';
 var ONREQUEST_FUNCTION = 'onRequest';

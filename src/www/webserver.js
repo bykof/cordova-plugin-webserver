@@ -1,9 +1,5 @@
 import exec from 'cordova/exec';
 
-import * as ImportedAppServer from './appserver/AppServer';
-
-// Export the Appserver
-export const AppServer = ImportedAppServer;
 const WEBSERVER_CLASS = 'Webserver';
 const START_FUNCTION = 'start';
 const ONREQUEST_FUNCTION = 'onRequest';
