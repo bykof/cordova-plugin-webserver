@@ -1,3 +1,14 @@
+function request(method, url, data, callback) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState === 4 && this.status === 200) {
+      callback(this);
+    }
+  };
+  xhttp.open(method, url, true);
+  xhttp.send(data);
+}
+
 exports.defineAutoTests = function() {
 
   describe('Webserver (window.webserver)', function () {
@@ -19,14 +30,27 @@ exports.defineAutoTests = function() {
 
   describe('Do a request', function() {
 
-    it('should do a request', function() {
+    it('should do a request with plaintext', function() {
         webserver.onRequest(
           function(request) {
-            // Check for a request is made
+            webserver.sendResponse(
+              request.requestId,
+              {
+                status: 200,
+                headers: {
+                  'Content-Type': 'text/plain',
+                  'TestHeader': 'Just a testheader'
+                },
+                body: 'Test success!'
+              }
+            )
           }
         );
         websever.start();
-        webserver.stop();
+  
+        request('GET', 'localhost:8080', undefined, function (response) {
+          expect(response.responseText).toBe('Test success!');
+        });
     });
   });
 };
