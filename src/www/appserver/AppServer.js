@@ -1,3 +1,5 @@
+/*global webserver*/
+
 import UniversalRouter from 'universal-router';
 import Request from "./Request";
 import Response from "./Response";
@@ -9,19 +11,21 @@ export default class AppServer {
     // Why? because SOLID of this class
     this.webserver = webserver;
     this.routes = [];
-    
+
+    this.onRequest = this.onRequest.bind(this);
+
     this.initWebserver();
     this.initRouter();
   }
-  
+
   initWebserver() {
     this.webserver.onRequest(this.onRequest);
   }
-  
+
   initRouter() {
     this.router = new UniversalRouter(this.routes);
   }
-  
+
   addRoute(path, callback) {
     this.routes.push(
       {
@@ -31,24 +35,24 @@ export default class AppServer {
     );
     this.initRouter();
   }
-  
+
   onRequest(request) {
     let requestObject =  new Request(
       request.requestId,
       request.method,
-      request.path,
-      request.query,
       request.body,
-      request.headers
+      request.headers,
+      request.path,
+      request.query
     );
-  
+
     let responseObject = new Response(
       this.webserver,
       requestObject.requestId
     );
-    
+
     this.router.resolve(
-      requestObject.url
+      requestObject.path
     ).then(
       // callback is a function
       (callback) => {
@@ -62,11 +66,11 @@ export default class AppServer {
       }
     );
   }
-  
+
   start() {
     this.webserver.start();
   }
-  
+
   stop() {
     this.webserver.stop();
   }

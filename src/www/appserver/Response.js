@@ -1,5 +1,5 @@
-
 export default class Response {
+
   constructor(
     webserver,
     requestId,
@@ -15,7 +15,7 @@ export default class Response {
     this.body = body;
     this.headers = headers;
   }
-  
+
   send() {
     this.webserver.sendResponse(
       {
@@ -26,25 +26,31 @@ export default class Response {
     );
     return this;
   }
-  
+
   status(status) {
     this.status(status);
     return this;
   }
-  
+
   notFound(){
     return this.status(404).send();
   }
-  
+
   methodNotAllowed() {
     return this.status(405).send();
   }
-  
+
   ok() {
     return this.status(200).send();
   }
-  
+
+  setHeader(key, value) {
+    this.headers[key] = value;
+    return this;
+  }
+
   json(data) {
+    this.setHeader('Content-Type', 'application/json');
     this.body = JSON.stringify(data);
     return this;
   }
