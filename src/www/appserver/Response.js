@@ -14,6 +14,8 @@ export default class Response {
     this.status = status;
     this.body = body;
     this.headers = headers;
+
+    this.send = this.send.bind(this);
   }
 
   send() {
@@ -34,15 +36,15 @@ export default class Response {
   }
 
   notFound(){
-    return this.status(404).send();
+    this.status(404).send();
   }
 
   methodNotAllowed() {
-    return this.status(405).send();
+    this.status(405).send();
   }
 
   ok() {
-    return this.status(200).send();
+    this.status(200).send();
   }
 
   setHeader(key, value) {

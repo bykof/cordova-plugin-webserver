@@ -11,9 +11,9 @@ export default class AppServer {
     // Why? because SOLID of this class
     this.webserver = webserver;
     this.routes = [];
+    this.notFoundCallback = null;
 
     this.onRequest = this.onRequest.bind(this);
-
     this.initWebserver();
     this.initRouter();
   }
@@ -30,10 +30,19 @@ export default class AppServer {
     this.routes.push(
       {
         path: path,
-        action: () => callback
+        action: (context) => {
+          return {
+            callback: callback,
+            context: context
+          };
+        }
       }
     );
     this.initRouter();
+  }
+
+  addNotFound(callback) {
+    this.notFoundCallback = callback;
   }
 
   onRequest(request) {
@@ -55,14 +64,19 @@ export default class AppServer {
       requestObject.path
     ).then(
       // callback is a function
-      (callback) => {
+      (callbackContext) => {
         // run the callback with all information we got for the request and the response
-        callback(requestObject, responseObject);
+        requestObject.params = callbackContext.context.params;
+        callbackContext.callback(requestObject, responseObject);
       }
     ).catch(
       (error) => {
-        // if there is an error, just send a not found 404 bljad
-        responseObject.notFound();
+        if (!this.notFoundCallback) {
+          // if there is an error, just send a not found 404 bljad
+          responseObject.notFound();
+        } else {
+          this.notFoundCallback();
+        }
       }
     );
   }
