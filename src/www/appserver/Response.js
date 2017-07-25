@@ -18,6 +18,7 @@ export default class Response {
 
   send() {
     this.webserver.sendResponse(
+      this.requestId,
       {
         status: this.status,
         body: this.body,
