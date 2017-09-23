@@ -75,13 +75,13 @@ The params have to look like this (there are not default values for the params!)
 
 ## Example
 
-```
+```javascript
 webserver.onRequest(
 	function(request) {
 		console.log("O MA GAWD! This is the request: ", request);
 
 		webserver.sendResponse(
-			request.responseId,
+			request.requestId,
 			{
 				status: 200,
 				body: '<html>Hello World</html>',
