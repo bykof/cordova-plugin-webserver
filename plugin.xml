@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
     id="cordova-plugin-webserver"
-    version="1.0.0">
+    version="1.0.1">
   <engines>
     <engine name="cordova" version=">=7.0.0" />
   </engines>
