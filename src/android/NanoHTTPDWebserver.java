@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class NanoHTTPDWebserver extends NanoHTTPD{
+public class NanoHTTPDWebserver extends NanoHTTPD {
 
     Webserver webserver;
 
@@ -35,15 +35,15 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
 
     /**
      * Create a request object
-     *
+     * <p>
      * [
-     *      "requestId": requestUUID,
-     "      body": request.jsonObject ?? "",
-     "      headers": request.headers,
-     "      method": request.method,
-     "      path": request.url.path,
-     "      query": request.url.query ?? ""
-        ]
+     * "requestId": requestUUID,
+     * "      body": request.jsonObject ?? "",
+     * "      headers": request.headers,
+     * "      method": request.method,
+     * "      path": request.url.path,
+     * "      query": request.url.query ?? ""
+     * ]
      *
      * @param session
      * @return
@@ -57,6 +57,15 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
         jsonRequest.put("path", session.getUri());
         jsonRequest.put("query", session.getQueryParameterString());
         return jsonRequest;
+    }
+
+    private String getContentType(JSONObject responseObject) throws JSONException {
+        if (responseObject.has("headers") &&
+                responseObject.getJSONObject("headers").has("Content-Type")) {
+            return responseObject.getJSONObject("headers").getString("Content-Type");
+        } else {
+            return "text/plain";
+        }
     }
 
     @Override
@@ -86,19 +95,20 @@ public class NanoHTTPDWebserver extends NanoHTTPD{
         JSONObject responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
         Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
         Response response = null;
+
         try {
             response = newFixedLengthResponse(
-                Response.Status.lookup(responseObject.getInt("status")),
-                "text/plain",
-                responseObject.getString("body")
+                    Response.Status.lookup(responseObject.getInt("status")),
+                    getContentType(responseObject),
+                    responseObject.getString("body")
             );
 
             Iterator<?> keys = responseObject.getJSONObject("headers").keys();
             while (keys.hasNext()) {
                 String key = (String) keys.next();
                 response.addHeader(
-                    key,
-                    responseObject.getJSONObject("headers").getString(key)
+                        key,
+                        responseObject.getJSONObject("headers").getString(key)
                 );
             }
 
