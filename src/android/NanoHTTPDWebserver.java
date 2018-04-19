@@ -16,8 +16,9 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NanoHTTPDWebserver extends NanoHTTPD {
 
@@ -28,9 +29,20 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         this.webserver = webserver;
     }
 
-    private String inputStreamToString(InputStream inputStream) {
-        Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    private String getBodyText(IHTTPSession session) {
+        Map<String, String> files = new HashMap<String, String>();
+        Method method = session.getMethod();
+        if (Method.PUT.equals(method) || Method.POST.equals(method)) {
+            try {
+                session.parseBody(files);
+            } catch (IOException ioe) {
+                return "{}";
+            } catch (ResponseException re) {
+                return "{}";
+            }
+        }
+        // get the POST body
+        return files.get("postData");
     }
 
     /**
@@ -51,7 +63,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
     private JSONObject createJSONRequest(String requestId, IHTTPSession session) throws JSONException {
         JSONObject jsonRequest = new JSONObject();
         jsonRequest.put("requestId", requestId);
-        jsonRequest.put("body", this.inputStreamToString(session.getInputStream()));
+        jsonRequest.put("body", this.getBodyText(session));
         jsonRequest.put("headers", session.getHeaders());
         jsonRequest.put("method", session.getMethod());
         jsonRequest.put("path", session.getUri());
