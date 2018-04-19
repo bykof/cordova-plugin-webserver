@@ -13,6 +13,7 @@ import fi.iki.elonen.NanoHTTPD;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
