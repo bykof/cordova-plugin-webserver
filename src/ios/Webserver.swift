@@ -98,7 +98,11 @@
         if portArgument != nil {
             port = portArgument as! Int
         }
-        self.webServer.start(withPort: UInt(port), bonjourName: nil)
+        do {
+            try self.webServer.start(options:[GCDWebServerOption_AutomaticallySuspendInBackground : false, GCDWebServerOption_Port: UInt(port)])
+        } catch let error {
+            print(error.localizedDescription)
+        }
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
     }
