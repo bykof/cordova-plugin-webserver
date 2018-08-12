@@ -81,6 +81,105 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         }
     }
 
+    Response serveFile(Map<String, String> header, File file, String mime) {
+        Response res;
+        try {
+            // Calculate etag
+            String etag = Integer.toHexString((file.getAbsolutePath() + file.lastModified() + "" + file.length()).hashCode());
+
+            // Support (simple) skipping:
+            long startFrom = 0;
+            long endAt = -1;
+            String range = header.get("range");
+            if (range != null) {
+                if (range.startsWith("bytes=")) {
+                    range = range.substring("bytes=".length());
+                    int minus = range.indexOf('-');
+                    try {
+                        if (minus > 0) {
+                            startFrom = Long.parseLong(range.substring(0, minus));
+                            endAt = Long.parseLong(range.substring(minus + 1));
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+
+            // get if-range header. If present, it must match etag or else we
+            // should ignore the range request
+            String ifRange = header.get("if-range");
+            boolean headerIfRangeMissingOrMatching = (ifRange == null || etag.equals(ifRange));
+
+            String ifNoneMatch = header.get("if-none-match");
+            boolean headerIfNoneMatchPresentAndMatching = ifNoneMatch != null && ("*".equals(ifNoneMatch) || ifNoneMatch.equals(etag));
+
+            // Change return code and add Content-Range header when skipping is
+            // requested
+            long fileLen = file.length();
+
+            if (headerIfRangeMissingOrMatching && range != null && startFrom >= 0 && startFrom < fileLen) {
+                // range request that matches current etag
+                // and the startFrom of the range is satisfiable
+                if (headerIfNoneMatchPresentAndMatching) {
+                    // range request that matches current etag
+                    // and the startFrom of the range is satisfiable
+                    // would return range from file
+                    // respond with not-modified
+                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res.addHeader("ETag", etag);
+                } else {
+                    if (endAt < 0) {
+                        endAt = fileLen - 1;
+                    }
+                    long newLen = endAt - startFrom + 1;
+                    if (newLen < 0) {
+                        newLen = 0;
+                    }
+
+                    FileInputStream fis = new FileInputStream(file);
+                    fis.skip(startFrom);
+
+                    res = Response.newFixedLengthResponse(Status.PARTIAL_CONTENT, mime, fis, newLen);
+                    res.addHeader("Accept-Ranges", "bytes");
+                    res.addHeader("Content-Length", "" + newLen);
+                    res.addHeader("Content-Range", "bytes " + startFrom + "-" + endAt + "/" + fileLen);
+                    res.addHeader("ETag", etag);
+                }
+            } else {
+
+                if (headerIfRangeMissingOrMatching && range != null && startFrom >= fileLen) {
+                    // return the size of the file
+                    // 4xx responses are not trumped by if-none-match
+                    res = newFixedLengthResponse(Status.RANGE_NOT_SATISFIABLE, NanoHTTPD.MIME_PLAINTEXT, "");
+                    res.addHeader("Content-Range", "bytes */" + fileLen);
+                    res.addHeader("ETag", etag);
+                } else if (range == null && headerIfNoneMatchPresentAndMatching) {
+                    // full-file-fetch request
+                    // would return entire file
+                    // respond with not-modified
+                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res.addHeader("ETag", etag);
+                } else if (!headerIfRangeMissingOrMatching && headerIfNoneMatchPresentAndMatching) {
+                    // range request that doesn't match current etag
+                    // would return entire (different) file
+                    // respond with not-modified
+
+                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res.addHeader("ETag", etag);
+                } else {
+                    // supply the file
+                    res = newFixedFileResponse(file, mime);
+                    res.addHeader("Content-Length", "" + fileLen);
+                    res.addHeader("ETag", etag);
+                }
+            }
+        } catch (IOException ioe) {
+            res = getForbiddenResponse("Reading file failed.");
+        }
+
+        return res;
+    }
+
     @Override
     public Response serve(IHTTPSession session) {
         Log.d(this.getClass().getName(), "New request is incoming!");
@@ -97,12 +196,17 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         pluginResult.setKeepCallback(true);
         this.webserver.onRequestCallbackContext.sendPluginResult(pluginResult);
 
-        while (!this.webserver.responses.containsKey(requestUUID)) {
+        while (!this.webserver.responses.containsKey(requestUUID) && !this.webserver.responses.containsKey('file')) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (this.webserver.responses.containsKey('file')) {
+          // TODO should specify a more correct mime-type
+          return serveFile(session.getHeaders(), new File((String) this.webserver.responses.get('file')), 'application/octet-stream');
         }
 
         JSONObject responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
