@@ -3,13 +3,13 @@
     let TIMEOUT: Int = 60 * 3 * 1000000
 
     var webServer: GCDWebServer = GCDWebServer()
-    var responses: Dictionary<String, Any> = [:]
+    var responses = SynchronizedDictionary<AnyHashable,Any?>()
     var onRequestCommand: CDVInvokedUrlCommand? = nil
 
     override func pluginInitialize() {
         self.webServer = GCDWebServer()
         self.onRequestCommand = nil
-        self.responses = [:]
+        self.responses = SynchronizedDictionary<AnyHashable,Any?>()
         self.initHTTPRequestHandlers()
     }
 
@@ -62,6 +62,9 @@
         for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
             response?.setValue(value, forAdditionalHeader: key)
         }
+
+        // Remove the handled response
+        self.responses.removeValue(forKey: requestUUID)
 
         // Complete the async response
         completionBlock(response!)
