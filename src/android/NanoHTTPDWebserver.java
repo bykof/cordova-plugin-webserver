@@ -21,6 +21,10 @@ import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 public class NanoHTTPDWebserver extends NanoHTTPD {
 
     Webserver webserver;
@@ -81,6 +85,13 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         }
     }
 
+    private Response newFixedFileResponse(File file, String mime) throws FileNotFoundException {
+        Response res;
+        res = newFixedLengthResponse(Response.Status.OK, mime, new FileInputStream(file), (int) file.length());
+        res.addHeader("Accept-Ranges", "bytes");
+        return res;
+    }
+
     Response serveFile(Map<String, String> header, File file, String mime) {
         Response res;
         try {
@@ -125,7 +136,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                     // and the startFrom of the range is satisfiable
                     // would return range from file
                     // respond with not-modified
-                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res = newFixedLengthResponse(Response.Status.NOT_MODIFIED, mime, "");
                     res.addHeader("ETag", etag);
                 } else {
                     if (endAt < 0) {
@@ -139,7 +150,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                     FileInputStream fis = new FileInputStream(file);
                     fis.skip(startFrom);
 
-                    res = Response.newFixedLengthResponse(Status.PARTIAL_CONTENT, mime, fis, newLen);
+                    res = newFixedLengthResponse(Response.Status.PARTIAL_CONTENT, mime, fis, newLen);
                     res.addHeader("Accept-Ranges", "bytes");
                     res.addHeader("Content-Length", "" + newLen);
                     res.addHeader("Content-Range", "bytes " + startFrom + "-" + endAt + "/" + fileLen);
@@ -150,21 +161,21 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                 if (headerIfRangeMissingOrMatching && range != null && startFrom >= fileLen) {
                     // return the size of the file
                     // 4xx responses are not trumped by if-none-match
-                    res = newFixedLengthResponse(Status.RANGE_NOT_SATISFIABLE, NanoHTTPD.MIME_PLAINTEXT, "");
+                    res = newFixedLengthResponse(Response.Status.RANGE_NOT_SATISFIABLE, NanoHTTPD.MIME_PLAINTEXT, "");
                     res.addHeader("Content-Range", "bytes */" + fileLen);
                     res.addHeader("ETag", etag);
                 } else if (range == null && headerIfNoneMatchPresentAndMatching) {
                     // full-file-fetch request
                     // would return entire file
                     // respond with not-modified
-                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res = newFixedLengthResponse(Response.Status.NOT_MODIFIED, mime, "");
                     res.addHeader("ETag", etag);
                 } else if (!headerIfRangeMissingOrMatching && headerIfNoneMatchPresentAndMatching) {
                     // range request that doesn't match current etag
                     // would return entire (different) file
                     // respond with not-modified
 
-                    res = newFixedLengthResponse(Status.NOT_MODIFIED, mime, "");
+                    res = newFixedLengthResponse(Response.Status.NOT_MODIFIED, mime, "");
                     res.addHeader("ETag", etag);
                 } else {
                     // supply the file
@@ -174,7 +185,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                 }
             }
         } catch (IOException ioe) {
-            res = getForbiddenResponse("Reading file failed.");
+            res = newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
         }
 
         return res;
@@ -196,7 +207,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         pluginResult.setKeepCallback(true);
         this.webserver.onRequestCallbackContext.sendPluginResult(pluginResult);
 
-        while (!this.webserver.responses.containsKey(requestUUID) && !this.webserver.responses.containsKey('file')) {
+        while (!this.webserver.responses.containsKey(requestUUID) && !this.webserver.responses.containsKey("file")) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -204,14 +215,25 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
             }
         }
 
-        if (this.webserver.responses.containsKey('file')) {
+        JSONObject responseObject;
+        Response response = null;
+
+        if (this.webserver.responses.containsKey("file")) {
           // TODO should specify a more correct mime-type
-          return serveFile(session.getHeaders(), new File((String) this.webserver.responses.get('file')), 'application/octet-stream');
+          try {
+            responseObject = (JSONObject) this.webserver.responses.get("file");
+            Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
+            return serveFile(session.getHeaders(), new File(responseObject.getString("path")), responseObject.getString("type"));
+          }
+          catch (JSONException e) {
+            e.printStackTrace();
+          }
+          return response;
         }
 
-        JSONObject responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
+        responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
         Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
-        Response response = null;
+
 
         try {
             response = newFixedLengthResponse(

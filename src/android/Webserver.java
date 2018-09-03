@@ -101,7 +101,8 @@ public class Webserver extends CordovaPlugin {
     }
 
     private void sendFileResponse(JSONArray args, CallbackContext callbackContext) throws JSONException {
-      this.responses.put('file', args.get(1));
+      Log.d(this.getClass().getName(), "Got sendResponse: " + args.toString());
+      this.responses.put("file", args.get(0));
       callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
     }
 
