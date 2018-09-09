@@ -207,7 +207,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         pluginResult.setKeepCallback(true);
         this.webserver.onRequestCallbackContext.sendPluginResult(pluginResult);
 
-        while (!this.webserver.responses.containsKey(requestUUID) && !this.webserver.responses.containsKey("file")) {
+        while (!this.webserver.responses.containsKey(requestUUID)) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
@@ -215,45 +215,41 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
             }
         }
 
-        JSONObject responseObject;
+        JSONObject responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
         Response response = null;
-
-        if (this.webserver.responses.containsKey("file")) {
-          // TODO should specify a more correct mime-type
-          try {
-            responseObject = (JSONObject) this.webserver.responses.get("file");
-            Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
-            return serveFile(session.getHeaders(), new File(responseObject.getString("path")), responseObject.getString("type"));
-          }
-          catch (JSONException e) {
-            e.printStackTrace();
-          }
-          return response;
-        }
-
-        responseObject = (JSONObject) this.webserver.responses.get(requestUUID);
         Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
 
-
-        try {
-            response = newFixedLengthResponse(
-                    Response.Status.lookup(responseObject.getInt("status")),
-                    getContentType(responseObject),
-                    responseObject.getString("body")
-            );
-
-            Iterator<?> keys = responseObject.getJSONObject("headers").keys();
-            while (keys.hasNext()) {
-                String key = (String) keys.next();
-                response.addHeader(
-                        key,
-                        responseObject.getJSONObject("headers").getString(key)
-                );
+        if (responseObject.containsKey("path")) {
+            // TODO should specify a more correct mime-type
+            try {
+                return serveFile(session.getHeaders(), new File(responseObject.getString("path")), responseObject.getString("type"));
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return response;
         }
-        return response;
+        else {
+            try {
+                response = newFixedLengthResponse(
+                          Response.Status.lookup(responseObject.getInt("status")),
+                          getContentType(responseObject),
+                          responseObject.getString("body")
+                );
+
+                Iterator<?> keys = responseObject.getJSONObject("headers").keys();
+                while (keys.hasNext()) {
+                    String key = (String) keys.next();
+                    response.addHeader(
+                            key,
+                            responseObject.getJSONObject("headers").getString(key)
+                    );
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
     }
 }

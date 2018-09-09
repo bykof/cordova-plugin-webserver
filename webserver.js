@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.start = start;
 exports.onRequest = onRequest;
 exports.sendResponse = sendResponse;
-exports.sendFile = sendFile;
 exports.stop = stop;
 
 var _exec = require('cordova/exec');
@@ -19,7 +18,6 @@ var WEBSERVER_CLASS = 'Webserver';
 var START_FUNCTION = 'start';
 var ONREQUEST_FUNCTION = 'onRequest';
 var SENDRESPONSE_FUNCION = 'sendResponse';
-var SENDFILE_FUNCION = 'sendFileResponse';
 var STOP_FUNCTION = 'stop';
 
 function start(success_callback, error_callback, port) {
@@ -38,10 +36,6 @@ function onRequest(success_callback) {
 
 function sendResponse(requestId, params, success_callback, error_callback) {
   (0, _exec2.default)(success_callback, error_callback, WEBSERVER_CLASS, SENDRESPONSE_FUNCION, [requestId, params]);
-}
-
-function sendFile(requestId, params, success_callback, error_callback) {
-  (0, _exec2.default)(success_callback, error_callback, WEBSERVER_CLASS, SENDFILE_FUNCION, [requestId, params]);
 }
 
 function stop(success_callback, error_callback) {

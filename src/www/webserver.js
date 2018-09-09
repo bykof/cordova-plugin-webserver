@@ -4,7 +4,6 @@ const WEBSERVER_CLASS = 'Webserver';
 const START_FUNCTION = 'start';
 const ONREQUEST_FUNCTION = 'onRequest';
 const SENDRESPONSE_FUNCION = 'sendResponse';
-const SENDFILE_FUNCION = 'sendFileResponse';
 const STOP_FUNCTION = 'stop';
 
 export function start(success_callback, error_callback, port) {
@@ -42,21 +41,6 @@ export function sendResponse(
     error_callback,
     WEBSERVER_CLASS,
     SENDRESPONSE_FUNCION,
-    [requestId, params]
-  );
-}
-
-export function sendFile(
-  requestId,
-  params,
-  success_callback,
-  error_callback
-) {
-  exec(
-    success_callback,
-    error_callback,
-    WEBSERVER_CLASS,
-    SENDFILE_FUNCION,
     [requestId, params]
   );
 }

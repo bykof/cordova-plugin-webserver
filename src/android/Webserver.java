@@ -44,10 +44,6 @@ public class Webserver extends CordovaPlugin {
             this.sendResponse(args, callbackContext);
             return true;
         }
-        else if ("sendFileResponse".equals(action)) {
-            this.sendFileResponse(args, callbackContext);
-            return true;
-        }
         return false;  // Returning false results in a "MethodNotFound" error.
     }
 
@@ -98,12 +94,6 @@ public class Webserver extends CordovaPlugin {
         Log.d(this.getClass().getName(), "Got sendResponse: " + args.toString());
         this.responses.put(args.getString(0), args.get(1));
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
-    }
-
-    private void sendFileResponse(JSONArray args, CallbackContext callbackContext) throws JSONException {
-      Log.d(this.getClass().getName(), "Got sendResponse: " + args.toString());
-      this.responses.put("file", args.get(0));
-      callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
     }
 
     /**
