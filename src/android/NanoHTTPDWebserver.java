@@ -219,7 +219,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         Response response = null;
         Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
 
-        if (responseObject.containsKey("path")) {
+        if (responseObject.has("path")) {
             // TODO should specify a more correct mime-type
             try {
                 return serveFile(session.getHeaders(), new File(responseObject.getString("path")), responseObject.getString("type"));
