@@ -73,6 +73,18 @@ The params have to look like this (there are not default values for the params!)
 }
 ```
 
+### sendFileResponse(responseObject, callbackSuccess, callbackError) (currently Android-only support)
+
+This method allows sending file content in response to an http request.  It is intended that this would be used in conjunction with cordova-plugin-file to locate the path of the file data to be sent.
+
+The response object should look like this.  Here, the provided path should be accessible by your cordova app and the type should be the mime type of the file.  Note that the MIME type of the file can be found from the [.type property of the File object](https://developer.mozilla.org/en-US/docs/Web/API/File).
+```
+{
+	path: '/sdcard0/Downloads/whatever.txt',
+	type: 'text/plain'
+}
+```
+
 ## Example
 
 ```javascript
@@ -106,4 +118,3 @@ Special thanks to:
 
 - https://github.com/NanoHttpd/nanohttpd
 - https://github.com/swisspol/GCDWebServer
-
