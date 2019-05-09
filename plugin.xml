@@ -28,6 +28,7 @@
 
   <platform name="ios">
     <source-file src="src/ios/Webserver.swift" />
+    <source-file src="src/ios/SynchronizedDictionary.swift" />
     <dependency id="cordova-plugin-add-swift-support" version="1.6.1"/>
 
     <framework src="libz.tbd" />
