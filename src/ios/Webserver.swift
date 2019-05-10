@@ -31,6 +31,15 @@
         ]
     }
 
+    func fileRequest(path: String) -> GCDWebServerResponse {
+        // Check if file exists, given its path
+        if !(FileManager.default.fileExists(atPath: path)) {
+            return GCDWebServerResponse(statusCode: 404);
+        }
+
+        return GCDWebServerFileResponse(file: path)!
+    }
+
     func processRequest(request: GCDWebServerRequest, completionBlock: GCDWebServerCompletionBlock) {
         var timeout = 0
         // Fetch data as GCDWebserverDataRequest
@@ -56,8 +65,15 @@
 
         // We got the dict so put information in the response
         let responseDict = self.responses[requestUUID] as! Dictionary<AnyHashable, Any>
-        let response = GCDWebServerDataResponse(text: responseDict["body"] as! String)
-        response?.statusCode = responseDict["status"] as! Int
+
+        // Check if a file path is provided else use regular data response
+        let response = responseDict["path"] != nil
+            ? fileRequest(path: responseDict["path"] as! String)
+            : GCDWebServerDataResponse(text: responseDict["body"] as! String)
+
+        if responseDict["status"] != nil {
+            response?.statusCode = responseDict["status"] as! Int
+        }
 
         for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
             response?.setValue(value, forAdditionalHeader: key)
