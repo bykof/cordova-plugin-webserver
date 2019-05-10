@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
     id="cordova-plugin-webserver"
-    version="1.0.1">
+    version="1.1.0">
   <engines>
     <engine name="cordova" version=">=6.5.0" />
   </engines>
@@ -27,55 +27,22 @@
   </platform>
 
   <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="Webserver">
+        <param name="ios-package" value="Webserver" />
+      </feature>
+    </config-file>
+
     <source-file src="src/ios/Webserver.swift" />
     <source-file src="src/ios/SynchronizedDictionary.swift" />
     <dependency id="cordova-plugin-add-swift-support" version="1.6.1"/>
 
     <framework src="libz.tbd" />
     <framework src="libxml2.tbd" />
+    <framework src="GCDWebServer" type="podspec" spec="~> 3.5.2" />
 
     <!-- GCDWebserver -->
-    <header-file src="src/ios/GCDWebServer/Core/GCDWebServer.h" />
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Core/GCDWebServer.m" /> -->
-    <!--  -->
     <header-file src="src/ios/GCDWebServer-Bridging-Header.h"/>
-    <!--  -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerConnection.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerFunctions.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerHTTPStatusCodes.h" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerPrivate.h" /> -->
-    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.h" />
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerRequest.m" /> -->
-    <header-file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.h" />
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Core/GCDWebServerResponse.m" /> -->
-    <!--  -->
-    <!-- <!&#45;&#45; GCDWebserver Requests &#45;&#45;> -->
-    <header-file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.h" />
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerDataRequest.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerFileRequest.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerMultiPartFormRequest.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Requests/GCDWebServerURLEncodedFormRequest.m" /> -->
-    <!--  -->
-    <!-- <!&#45;&#45; GCDWebserver Response &#45;&#45;> -->
-    <header-file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.h" />
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerDataResponse.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerErrorResponse.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerFileResponse.m" /> -->
-    <!-- <header&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.h" /> -->
-    <!-- <source&#45;file src="src/ios/GCDWebServer/Responses/GCDWebServerStreamedResponse.m" /> -->
 
-
-    <config-file target="config.xml" parent="/*">
-      <feature name="Webserver">
-        <param name="ios-package" value="Webserver" />
-      </feature>
-    </config-file>
   </platform>
 </plugin>
