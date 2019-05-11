@@ -1,29 +1,24 @@
 package org.apache.cordova.plugin;
 
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.net.Uri;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fi.iki.elonen.NanoHTTPD;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.Map;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+
+import fi.iki.elonen.NanoHTTPD;
 
 public class NanoHTTPDWebserver extends NanoHTTPD {
 
@@ -191,6 +186,20 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         return res;
     }
 
+    /**
+     * Get mime type based of file extension
+     * @param url
+     * @return
+     */
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
     @Override
     public Response serve(IHTTPSession session) {
         Log.d(this.getClass().getName(), "New request is incoming!");
@@ -220,21 +229,21 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
         Log.d(this.getClass().getName(), "responseObject: " + responseObject.toString());
 
         if (responseObject.has("path")) {
-            // TODO should specify a more correct mime-type
             try {
-                return serveFile(session.getHeaders(), new File(responseObject.getString("path")), responseObject.getString("type"));
-            }
-            catch (JSONException e) {
+                File file = new File(responseObject.getString("path"));
+                Uri uri = Uri.fromFile(file);
+                String mime = getMimeType(uri.toString());
+                return serveFile(session.getHeaders(), file, mime);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return response;
-        }
-        else {
+        } else {
             try {
                 response = newFixedLengthResponse(
-                          Response.Status.lookup(responseObject.getInt("status")),
-                          getContentType(responseObject),
-                          responseObject.getString("body")
+                        Response.Status.lookup(responseObject.getInt("status")),
+                        getContentType(responseObject),
+                        responseObject.getString("body")
                 );
 
                 Iterator<?> keys = responseObject.getJSONObject("headers").keys();
