@@ -185,7 +185,7 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                 }
             }
         } catch (IOException ioe) {
-            res = newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "FORBIDDEN: Reading file failed.");
+            res = newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, ioe.getMessage());
         }
 
         return res;
