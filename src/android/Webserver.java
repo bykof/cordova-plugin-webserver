@@ -32,15 +32,15 @@ public class Webserver extends CordovaPlugin {
             }
             return true;
         }
-        else if ("stop".equals(action)) {
+        if ("stop".equals(action)) {
             this.stop(args, callbackContext);
             return true;
         }
-        else if ("onRequest".equals(action)) {
+        if ("onRequest".equals(action)) {
             this.onRequest(args, callbackContext);
             return true;
         }
-        else if ("sendResponse".equals(action)) {
+        if ("sendResponse".equals(action)) {
             this.sendResponse(args, callbackContext);
             return true;
         }
@@ -57,11 +57,20 @@ public class Webserver extends CordovaPlugin {
 
         if (args.length() == 1) {
             port = args.getInt(0);
-
         }
 
-        this.nanoHTTPDWebserver = new NanoHTTPDWebserver(port, this);
-        this.nanoHTTPDWebserver.start();
+        if (this.nanoHTTPDWebserver != null){
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Server already running"));
+            return;
+        }
+
+        try {
+            this.nanoHTTPDWebserver = new NanoHTTPDWebserver(port, this);
+            this.nanoHTTPDWebserver.start();
+        }catch (Exception e){
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, e.getMessage()));
+            return;
+        }
 
         Log.d(
              this.getClass().getName(),
@@ -80,6 +89,7 @@ public class Webserver extends CordovaPlugin {
     private void stop(JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (this.nanoHTTPDWebserver != null) {
             this.nanoHTTPDWebserver.stop();
+            this.nanoHTTPDWebserver = null;
         }
         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
     }

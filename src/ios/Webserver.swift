@@ -120,6 +120,12 @@
         if portArgument != nil {
             port = portArgument as! Int
         }
+        
+        if self.webServer.isRunning{
+            self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Server already running"), callbackId: command.callbackId)
+            return
+        }
+        
         do {
             try self.webServer.start(options:[GCDWebServerOption_AutomaticallySuspendInBackground : false, GCDWebServerOption_Port: UInt(port)])
         } catch let error {
