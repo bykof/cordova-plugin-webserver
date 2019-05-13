@@ -124,6 +124,8 @@
             try self.webServer.start(options:[GCDWebServerOption_AutomaticallySuspendInBackground : false, GCDWebServerOption_Port: UInt(port)])
         } catch let error {
             print(error.localizedDescription)
+            self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: error.localizedDescription), callbackId: command.callbackId)
+            return
         }
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
