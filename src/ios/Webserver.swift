@@ -31,6 +31,15 @@
         ]
     }
 
+    func fileRequest(path: String) -> GCDWebServerResponse {
+        // Check if file exists, given its path
+        if !(FileManager.default.fileExists(atPath: path)) {
+            return GCDWebServerResponse(statusCode: 404);
+        }
+
+        return GCDWebServerFileResponse(file: path)!
+    }
+
     func processRequest(request: GCDWebServerRequest, completionBlock: GCDWebServerCompletionBlock) {
         var timeout = 0
         // Fetch data as GCDWebserverDataRequest
@@ -56,8 +65,15 @@
 
         // We got the dict so put information in the response
         let responseDict = self.responses[requestUUID] as! Dictionary<AnyHashable, Any>
-        let response = GCDWebServerDataResponse(text: responseDict["body"] as! String)
-        response?.statusCode = responseDict["status"] as! Int
+
+        // Check if a file path is provided else use regular data response
+        let response = responseDict["path"] != nil
+            ? fileRequest(path: responseDict["path"] as! String)
+            : GCDWebServerDataResponse(text: responseDict["body"] as! String)
+
+        if responseDict["status"] != nil {
+            response?.statusCode = responseDict["status"] as! Int
+        }
 
         for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
             response?.setValue(value, forAdditionalHeader: key)
@@ -70,6 +86,7 @@
         completionBlock(response!)
     }
 
+    @objc(onRequest:)
     func onRequest(_ command: CDVInvokedUrlCommand) {
         self.onRequestCommand = command
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_NO_RESULT)
@@ -90,10 +107,12 @@
         )
     }
 
+    @objc(sendResponse:)
     func sendResponse(_ command: CDVInvokedUrlCommand) {
         self.responses[command.argument(at: 0) as! String] = command.argument(at: 1)
     }
 
+    @objc(start:)
     func start(_ command: CDVInvokedUrlCommand) {
         var port = 8080
         let portArgument = command.argument(at: 0)
@@ -101,11 +120,25 @@
         if portArgument != nil {
             port = portArgument as! Int
         }
-        self.webServer.start(withPort: UInt(port), bonjourName: nil)
+        
+        if self.webServer.isRunning{
+            self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Server already running"), callbackId: command.callbackId)
+            return
+        }
+        
+        do {
+            try self.webServer.start(options:[GCDWebServerOption_AutomaticallySuspendInBackground : false, GCDWebServerOption_Port: UInt(port)])
+        } catch let error {
+            print(error.localizedDescription)
+            self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: error.localizedDescription), callbackId: command.callbackId)
+            return
+        }
         let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
         self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
     }
 
+
+    @objc(stop:)
     func stop(_ command: CDVInvokedUrlCommand) {
         if self.webServer.isRunning {
             self.webServer.stop()

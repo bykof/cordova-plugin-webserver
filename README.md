@@ -40,10 +40,8 @@ This method will stop your webserver.
 
 ### onRequest(callback(request))
 
-Ok now this is the interesting part...
-Everytime a request will be received by the webserver your callback function will be called. In this case you are thinking right! You have to define onRequest BEFORE your start your server. I think it would work also after the start() but I didn't tested it yet.
-
-The params will look like this:
+Every time the webserver receives an request your callback function is called. 
+The request params will look like this:
 ```
 {
 	requestId: '3jh4-ku34k-k3j4k-k3j42',
@@ -73,16 +71,27 @@ The params have to look like this (there are not default values for the params!)
 }
 ```
 
-### sendFileResponse(responseObject, callbackSuccess, callbackError) (currently Android-only support)
+#### Serving files
 
-This method allows sending file content in response to an http request.  It is intended that this would be used in conjunction with cordova-plugin-file to locate the path of the file data to be sent.
 
-The response object should look like this.  Here, the provided path should be accessible by your cordova app and the type should be the mime type of the file.  Note that the MIME type of the file can be found from the [.type property of the File object](https://developer.mozilla.org/en-US/docs/Web/API/File).
+To serve a file in response to an http request you should use `path` param which points to the file
+location on the device. 
+
 ```
 {
+	status: 200,
 	path: '/sdcard0/Downloads/whatever.txt',
-	type: 'text/plain'
+	headers: {
+        }
 }
+```
+
+The cordova-plugin-file plugin can be used to locate the path of the file data to be sent. For android you
+might need strip the `file://` part of the file path for it to work. 
+```
+window.resolveLocalFileSystemURL('cdvfile://localhost/temporary/path/to/file.mp4', function(entry) {
+  console.log(entry.toURL());
+});
 ```
 
 ## Example
