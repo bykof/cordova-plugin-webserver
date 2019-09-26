@@ -31,10 +31,14 @@
         ]
     }
 
-    func fileRequest(path: String) -> GCDWebServerResponse {
+    func fileRequest(request: GCDWebServerRequest, path: String) -> GCDWebServerResponse {
         // Check if file exists, given its path
         if !(FileManager.default.fileExists(atPath: path)) {
             return GCDWebServerResponse(statusCode: 404);
+        }
+
+        if (request.hasByteRange()) {
+            return GCDWebServerFileResponse(file: path, byteRange: request.byteRange)!
         }
 
         return GCDWebServerFileResponse(file: path)!
@@ -68,7 +72,7 @@
 
         // Check if a file path is provided else use regular data response
         let response = responseDict["path"] != nil
-            ? fileRequest(path: responseDict["path"] as! String)
+            ? fileRequest(request: request, path: responseDict["path"] as! String)
             : GCDWebServerDataResponse(text: responseDict["body"] as! String)
 
         if responseDict["status"] != nil {
@@ -120,12 +124,12 @@
         if portArgument != nil {
             port = portArgument as! Int
         }
-        
+
         if self.webServer.isRunning{
             self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "Server already running"), callbackId: command.callbackId)
             return
         }
-        
+
         do {
             try self.webServer.start(options:[GCDWebServerOption_AutomaticallySuspendInBackground : false, GCDWebServerOption_Port: UInt(port)])
         } catch let error {
