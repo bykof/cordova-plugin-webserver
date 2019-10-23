@@ -1,6 +1,6 @@
-#import "GCDWebServer.h"
-#import "GCDWebServerDataRequest.h"
-#import "GCDWebServerDataResponse.h"
-#import "GCDWebServerFileResponse.h"
-#import "GCDWebServerResponse.h"
-#import "GCDWebServerRequest.h"
+#import <GCDWebServer/GCDWebServer.h>
+#import <GCDWebServer/GCDWebServerDataRequest.h>
+#import <GCDWebServer/GCDWebServerDataResponse.h>
+#import <GCDWebServer/GCDWebServerFileResponse.h>
+#import <GCDWebServer/GCDWebServerResponse.h>
+#import <GCDWebServer/GCDWebServerRequest.h>
