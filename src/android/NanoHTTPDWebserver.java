@@ -234,7 +234,16 @@ public class NanoHTTPDWebserver extends NanoHTTPD {
                 File file = new File(responseObject.getString("path"));
                 Uri uri = Uri.fromFile(file);
                 String mime = getMimeType(uri.toString());
-                return serveFile(session.getHeaders(), file, mime);
+                Response res = serveFile(session.getHeaders(), file, mime);
+                Iterator<?> keys = responseObject.getJSONObject("headers").keys();
+                while (keys.hasNext()) {
+                    String key = (String) keys.next();
+                    res.addHeader(
+                            key,
+                            responseObject.getJSONObject("headers").getString(key)
+                    );
+                }
+                return res;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
