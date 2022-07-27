@@ -32,11 +32,11 @@
   ],
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
-    "cordova": "^8.0.0"
+    "cordova": "^11.0.0"
   },
   "scripts": {
     "build": "./node_modules/babel-cli/bin/babel.js src/www/webserver.js --out-file webserver.js"
@@ -45,6 +45,6 @@
     "cordova": false
   },
   "dependencies": {
-    "universal-router": "^5.1.0"
+    "universal-router": "^9.1.0"
   }
 }
