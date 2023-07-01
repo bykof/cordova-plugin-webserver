@@ -3,13 +3,13 @@
     let TIMEOUT: Int = 60 * 3 * 1000000
 
     var webServer: GCDWebServer = GCDWebServer()
-    var responses = SynchronizedDictionary<AnyHashable,Any?>()
+    var requests = SynchronizedDictionary<AnyHashable, (GCDWebServerRequest, GCDWebServerCompletionBlock)>()
     var onRequestCommand: CDVInvokedUrlCommand? = nil
 
     override func pluginInitialize() {
         self.webServer = GCDWebServer()
         self.onRequestCommand = nil
-        self.responses = SynchronizedDictionary<AnyHashable,Any?>()
+        self.requests = SynchronizedDictionary<AnyHashable,(GCDWebServerRequest, GCDWebServerCompletionBlock)>()
         self.initHTTPRequestHandlers()
     }
 
@@ -18,7 +18,7 @@
         var body = ""
 
         if dataRequest.hasBody() {
-            body = String(data: dataRequest.data, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue)) ?? ""
+            body = dataRequest.data.base64EncodedString(options: NSData.Base64EncodingOptions(rawValue: 0))
         }
 
         return [
@@ -26,8 +26,9 @@
             "body": body,
             "headers": dataRequest.headers,
             "method": dataRequest.method,
-            "path": dataRequest.url.path,
-            "query": dataRequest.url.query ?? ""
+            "path": dataRequest.path,
+            "query": dataRequest.url.query ?? "",
+            "bodyIsBase64": true // we only implement this for iOS so this way we can check if it is actually base64
         ]
     }
 
@@ -44,50 +45,27 @@
         return GCDWebServerFileResponse(file: path)!
     }
 
-    func processRequest(request: GCDWebServerRequest, completionBlock: GCDWebServerCompletionBlock) {
-        var timeout = 0
+    func processRequest(request: GCDWebServerRequest, completionBlock: @escaping GCDWebServerCompletionBlock) {
+        if (self.onRequestCommand == nil) {
+
+            print("No onRequest callback available. Ignore request")
+            return
+        }
         // Fetch data as GCDWebserverDataRequest
         let requestUUID = UUID().uuidString
         // Transform it into an dictionary for the javascript plugin
         let requestDict = self.requestToRequestDict(requestUUID: requestUUID, request: request)
 
+        // Save the request to when we receive a response from javascript
+        self.requests[requestUUID] = (request, completionBlock)
+
         // Do a call to the onRequestCommand to inform the JS plugin
-        if (self.onRequestCommand != nil) {
-            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: requestDict)
-            pluginResult?.setKeepCallbackAs(true)
-            self.commandDelegate.send(
-                pluginResult,
-                callbackId: self.onRequestCommand?.callbackId
-            )
-        }
-
-        // Here we have to wait until the javascript block fetches the message and do a response
-        while self.responses[requestUUID] == nil {
-            timeout += 1000
-            usleep(1000)
-        }
-
-        // We got the dict so put information in the response
-        let responseDict = self.responses[requestUUID] as! Dictionary<AnyHashable, Any>
-
-        // Check if a file path is provided else use regular data response
-        let response = responseDict["path"] != nil
-            ? fileRequest(request: request, path: responseDict["path"] as! String)
-            : GCDWebServerDataResponse(text: responseDict["body"] as! String)
-
-        if responseDict["status"] != nil {
-            response?.statusCode = responseDict["status"] as! Int
-        }
-
-        for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
-            response?.setValue(value, forAdditionalHeader: key)
-        }
-
-        // Remove the handled response
-        self.responses.removeValue(forKey: requestUUID)
-
-        // Complete the async response
-        completionBlock(response!)
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: requestDict)
+        pluginResult?.setKeepCallbackAs(true)
+        self.commandDelegate.send(
+            pluginResult,
+            callbackId: self.onRequestCommand?.callbackId
+        )
     }
 
     @objc(onRequest:)
@@ -113,7 +91,45 @@
 
     @objc(sendResponse:)
     func sendResponse(_ command: CDVInvokedUrlCommand) {
-        self.responses[command.argument(at: 0) as! String] = command.argument(at: 1)
+        do {
+            let requestUUID = command.argument(at: 0) as! String
+
+            if (self.requests[requestUUID] == nil) {
+                print("No matching request")
+                self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "No matching request"), callbackId: command.callbackId)
+                return
+            }
+
+            // We got the dict so put information in the response
+            let request = self.requests[requestUUID]?.0 as! GCDWebServerRequest
+            let completionBlock = self.requests[requestUUID]?.1 as! GCDWebServerCompletionBlock
+            let responseDict = command.argument(at: 1) as! Dictionary<AnyHashable, Any>
+
+            // Check if a file path is provided else use regular data response
+            let response = responseDict["path"] != nil
+                ? fileRequest(request: request, path: responseDict["path"] as! String)
+                : GCDWebServerDataResponse(text: responseDict["body"] as! String)
+
+            if responseDict["status"] != nil {
+                response?.statusCode = responseDict["status"] as! Int
+            }
+
+            for (key, value) in (responseDict["headers"] as! Dictionary<String, String>) {
+                response?.setValue(value, forAdditionalHeader: key)
+            }
+
+            // Remove the handled request
+            self.requests.removeValue(forKey: requestUUID)
+
+            // Complete the async response
+            completionBlock(response!)
+
+            let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK)
+            self.commandDelegate!.send(pluginResult, callbackId: command.callbackId)
+        } catch let error {
+            print(error.localizedDescription)
+            self.commandDelegate!.send(CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: error.localizedDescription), callbackId: command.callbackId)
+        }
     }
 
     @objc(start:)
